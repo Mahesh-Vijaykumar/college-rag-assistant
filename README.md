@@ -1,6 +1,6 @@
 # College RAG Support Bot
 
-A local RAG-based chat support system for colleges, featuring a public chat interface and an admin panel for document management. Built with FastAPI, React, ChromaDB, and local LLMs (Phi-3.5).
+A local RAG-based chat support system for colleges, featuring a public chat interface and an admin panel for document management. Built with FastAPI, React, ChromaDB, and local LLMs (phi3:mini).
 
 ## Prerequisites
 
@@ -13,9 +13,9 @@ A local RAG-based chat support system for colleges, featuring a public chat inte
 ### 1. Install and Run Ollama
 
 1.  Download and install [Ollama](https://ollama.com/).
-2.  Pull the Phi-3.5 model:
+2.  Pull the phi3:mini model:
     ```bash
-    ollama pull phi3.5
+    ollama pull phi3:mini
     ```
 3.  Start the Ollama server (usually runs automatically in background).
 
@@ -79,6 +79,6 @@ A local RAG-based chat support system for colleges, featuring a public chat inte
 
 ## Troubleshooting
 
-- **LLM Error**: Ensure Ollama is running and `phi3.5` model is pulled. Check `LLM_API_URL` in `.env`.
+- **LLM Error**: Ensure Ollama is running and `phi3:mini` model is pulled. Check `LLM_API_URL` in `.env`.
 - **Upload Error**: Ensure `uploads` and `vector_db` directories exist (created automatically by backend).
 - **Permission Denied (npm)**: If you encounter permission errors during `npm install`, try using a different directory or checking your Node.js installation permissions.
