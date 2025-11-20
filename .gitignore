@@ -1,0 +1,58 @@
+# ===========================
+# PYTHON BACKEND
+# ===========================
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env
+backend/.env
+
+
+# ===========================
+# APP DATA (DO NOT COMMIT)
+# ===========================
+
+# User-uploaded documents
+uploads/
+
+# Chroma vector database
+vector_db/
+
+# Local model files (if added later)
+models/
+
+
+# ===========================
+# FRONTEND (REACT + VITE)
+# ===========================
+
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Lockfiles (optional)
+*.log
+
+
+# ===========================
+# SYSTEM / OS FILES
+# ===========================
+
+.DS_Store
+Thumbs.db
+
+
+# ===========================
+# EDITOR / TOOLING
+# ===========================
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
