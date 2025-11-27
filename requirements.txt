@@ -9,3 +9,5 @@ passlib[bcrypt]
 requests
 python-dotenv
 numpy
+nltk
+pytest

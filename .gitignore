@@ -9,6 +9,7 @@ __pycache__/
 
 # Virtual environment
 venv/
+featvenv/
 .env
 backend/.env
 
@@ -56,3 +57,6 @@ Thumbs.db
 
 # JetBrains IDEs
 .idea/
+
+# Pytest cache  <-- ADD THIS
+.pytest_cache/
