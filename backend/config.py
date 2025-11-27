@@ -16,6 +16,10 @@ class Settings:
     
     LLM_API_URL = os.getenv("LLM_API_URL", "http://localhost:11434/api/generate")
     LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "phi3.5")
+    
+    # LLM Switching
+    LLM_PROVIDER = os.getenv("LLM_PROVIDER", "local")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
     # Ensure directories exist
     os.makedirs(UPLOAD_DIR, exist_ok=True)

@@ -10,6 +10,7 @@ from database import get_collection
 from config import settings
 import embeddings
 import reranker
+import llm_client
 
 # Download NLTK data if not already present
 try:
@@ -144,7 +145,7 @@ def process_and_store_document(file_path: str, filename: str, category: str = "G
         ids=ids
     )
 
-def query_rag(query_text: str, n_results: int = 3) -> Dict[str, Any]:
+async def query_rag(query_text: str, n_results: int = 3) -> Dict[str, Any]:
     """
     Two-stage retrieval: dense retrieval + reranking.
     
@@ -199,20 +200,8 @@ def query_rag(query_text: str, n_results: int = 3) -> Dict[str, Any]:
                 reranked_sources.append(metadatas[i]['filename'])
                 break
     
-    # Generate answer using local LLM
-    answer = generate_answer(query_text, context)
-    
-    return {
-        "answer": answer,
-        "sources": reranked_sources
-    }
-
-def generate_answer(query: str, context: str) -> str:
-    if not context:
-        return "I don’t have this information in the uploaded college documents."
-        
-    prompt = f"""
-You are a helpful and knowledgeable AI assistant for a college.
+    # Generate answer using unified LLM client
+    prompt = f"""You are a helpful and knowledgeable AI assistant for a college.
 
 Use ONLY the information in the <context> section to answer.
 
@@ -220,31 +209,24 @@ Follow these rules:
 - Give clear, structured, and concise answers.
 - Use bullet points, numbered lists, and bold headings.
 - Highlight important details with **bold text**.
-- If the user asks “who”, “what”, “when”, “where”, “which”, provide a direct answer first.
+- If the user asks "who", "what", "when", "where", "which", provide a direct answer first.
 - Then provide a short explanation under a section called **Details**.
 - Do NOT add information that is not in the context.
 - If the answer is not found in the context, reply:
-  "I don’t have this information in the uploaded college documents."
+  "I don't have this information in the uploaded college documents."
 
 <context>
 {context}
 </context>
 
-User Question: {query}
+User Question: {query_text}
 
 Provide the answer in clean, formatted Markdown.
 """
-
-    payload = {
-        "model": settings.LLM_MODEL_NAME,
-        "prompt": prompt,
-        "stream": False
-    }
     
-    try:
-        response = requests.post(settings.LLM_API_URL, json=payload)
-        response.raise_for_status()
-        return response.json().get("response", "Error generating response.")
-    except Exception as e:
-        print(f"LLM Error: {e}")
-        return "I encountered an error while trying to generate an answer. Please ensure the local LLM is running."
+    answer = await llm_client.generate_answer_llm(prompt)
+    
+    return {
+        "answer": answer,
+        "sources": reranked_sources
+    }
