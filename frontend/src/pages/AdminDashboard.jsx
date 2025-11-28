@@ -13,9 +13,34 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="flex h-screen bg-dark-900 overflow-hidden">
+        <div className="flex h-screen bg-black overflow-hidden relative">
+            {/* Colorful Gradient Backgrounds */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
+                        filter: 'blur(60px)',
+                    }}
+                />
+                <div
+                    className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%)',
+                        filter: 'blur(80px)',
+                    }}
+                />
+                <div
+                    className="absolute bottom-1/3 left-1/4 w-[500px] h-[500px] rounded-full"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, transparent 70%)',
+                        filter: 'blur(70px)',
+                    }}
+                />
+            </div>
+
             {/* Sidebar */}
-            <aside className="w-64 bg-dark-900 border-r border-dark-700 flex flex-col">
+            <aside className="relative z-10 w-64 bg-dark-900/50 backdrop-blur-sm border-r border-dark-700 flex flex-col">
                 {/* Header */}
                 <div className="p-6 flex items-center space-x-3">
                     <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
@@ -32,8 +57,8 @@ const AdminDashboard = () => {
                     <button
                         onClick={() => setActiveView('manage')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeView === 'manage'
-                                ? 'bg-primary-600 text-white'
-                                : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                            ? 'bg-primary-600 text-white'
+                            : 'text-gray-400 hover:bg-dark-800 hover:text-white'
                             }`}
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,8 +70,8 @@ const AdminDashboard = () => {
                     <button
                         onClick={() => setActiveView('upload')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeView === 'upload'
-                                ? 'bg-primary-600 text-white'
-                                : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                            ? 'bg-primary-600 text-white'
+                            : 'text-gray-400 hover:bg-dark-800 hover:text-white'
                             }`}
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +96,7 @@ const AdminDashboard = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto bg-dark-900 p-8">
+            <main className="relative z-10 flex-1 overflow-y-auto bg-transparent p-8">
                 {activeView === 'manage' ? (
                     <ManageDocuments onNavigateToUpload={() => setActiveView('upload')} />
                 ) : (
@@ -83,3 +108,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

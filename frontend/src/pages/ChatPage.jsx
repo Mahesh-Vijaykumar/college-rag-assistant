@@ -63,9 +63,34 @@ const ChatPage = () => {
     ];
 
     return (
-        <div className="flex h-screen bg-dark-900 overflow-hidden">
+        <div className="flex h-screen bg-black overflow-hidden relative">
+            {/* Colorful Gradient Backgrounds */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
+                        filter: 'blur(60px)',
+                    }}
+                />
+                <div
+                    className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%)',
+                        filter: 'blur(80px)',
+                    }}
+                />
+                <div
+                    className="absolute bottom-1/3 left-1/4 w-[500px] h-[500px] rounded-full"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, transparent 70%)',
+                        filter: 'blur(70px)',
+                    }}
+                />
+            </div>
+
             {/* Sidebar (FAQ) */}
-            <aside className="w-80 bg-dark-900 border-r border-dark-700 hidden md:flex flex-col">
+            <aside className="relative z-10 w-80 bg-dark-900/50 backdrop-blur-sm border-r border-dark-700 hidden md:flex flex-col">
                 <div className="p-6 border-b border-dark-700">
                     <div className="flex items-center space-x-2 text-primary-500 mb-1">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,9 +117,9 @@ const ChatPage = () => {
             </aside>
 
             {/* Main Chat Area */}
-            <main className="flex-1 flex flex-col bg-dark-900 relative">
+            <main className="relative z-10 flex-1 flex flex-col bg-transparent">
                 {/* Header (Mobile only) */}
-                <div className="md:hidden p-4 border-b border-dark-700 flex items-center justify-between bg-dark-900 z-10">
+                <div className="md:hidden p-4 border-b border-dark-700 flex items-center justify-between bg-dark-900/50 backdrop-blur-sm z-10">
                     <span className="font-bold text-lg">College RAG Assistant</span>
                 </div>
 
@@ -130,7 +155,7 @@ const ChatPage = () => {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 md:p-6 bg-dark-900 border-t border-dark-700">
+                <div className="p-4 md:p-6 bg-dark-900/50 backdrop-blur-sm border-t border-dark-700">
                     <div className="max-w-3xl mx-auto">
                         <form onSubmit={handleSend} className="relative">
                             <input
