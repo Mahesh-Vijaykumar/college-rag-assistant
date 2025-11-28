@@ -195,6 +195,13 @@ You do not have access to specific documents for this query (retrieval relevance
 - If this is a general knowledge question (e.g., "what is the time", "who is Einstein"), answer it.
 - If the user is asking for specific college details (fees, schedules, etc.) that you don't know, politely admit you don't have that information in your current documents.
 
+Format your response in clean Markdown:
+- Use **headings** (## or ###) to organize information
+- Use **bullet points** for lists
+- Use **numbered lists** for sequential steps
+- Use **bold** for emphasis on key points
+- Keep paragraphs short and concise
+
 Answer helpfully but do not hallucinate specific college facts.
 """
         answer = await llm_client.generate_answer_llm(general_prompt)
@@ -221,13 +228,19 @@ Answer helpfully but do not hallucinate specific college facts.
 
 Use ONLY the information in the <context> section to answer.
 
-Follow these rules:
-- Give clear, structured, and concise answers.
-- Use bullet points, numbered lists, and bold headings.
-- Highlight important details with **bold text**.
-- If the user asks "who", "what", "when", "where", "which", provide a direct answer first.
-- Then provide a short explanation under a section called **Details**.
-- Do NOT add information that is not in the context.
+Formatting Guidelines:
+- Structure your response with **clear headings** (use ## or ###)
+- Use **bullet points** (•) for lists of items
+- Use **numbered lists** (1., 2., 3.) for sequential steps or processes
+- Use **bold text** to highlight key information, dates, numbers, or important terms
+- Break long paragraphs into shorter, digestible sections
+- Add a brief summary at the top for complex answers
+
+Content Rules:
+- Provide direct, concise answers
+- If the question asks "who", "what", "when", "where", or "which", start with a direct answer
+- Then expand with relevant details under appropriate headings
+- Do NOT add information that is not in the context
 - If the answer is not found in the context, reply:
   "I don't have this information in the uploaded college documents."
 
@@ -237,7 +250,7 @@ Follow these rules:
 
 User Question: {query_text}
 
-Provide the answer in clean, formatted Markdown.
+Provide a well-formatted, easy-to-read response in Markdown.
 """
     
     answer = await llm_client.generate_answer_llm(prompt)

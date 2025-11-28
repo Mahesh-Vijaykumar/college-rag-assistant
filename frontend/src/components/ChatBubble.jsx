@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ChatBubble = ({ message, isUser, sources }) => {
     return (
@@ -37,7 +39,50 @@ const ChatBubble = ({ message, isUser, sources }) => {
                             : 'bg-dark-800 border border-dark-700 text-gray-200 rounded-tl-sm'
                         }
           `}>
-                        {message}
+                        {isUser ? (
+                            <div>{message}</div>
+                        ) : (
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                    // Headings
+                                    h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-3 mt-4 text-white" {...props} />,
+                                    h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-2 mt-3 text-white" {...props} />,
+                                    h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-2 mt-2 text-gray-100" {...props} />,
+
+                                    // Paragraphs
+                                    p: ({ node, ...props }) => <p className="mb-3 leading-relaxed text-gray-200" {...props} />,
+
+                                    // Lists
+                                    ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1 ml-2" {...props} />,
+                                    ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1 ml-2" {...props} />,
+                                    li: ({ node, ...props }) => <li className="text-gray-200 leading-relaxed" {...props} />,
+
+                                    // Bold and emphasis
+                                    strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
+                                    em: ({ node, ...props }) => <em className="italic text-gray-100" {...props} />,
+
+                                    // Code blocks
+                                    code: ({ node, inline, ...props }) =>
+                                        inline ? (
+                                            <code className="bg-dark-900 px-1.5 py-0.5 rounded text-primary-400 font-mono text-xs" {...props} />
+                                        ) : (
+                                            <code className="block bg-dark-900 p-3 rounded-lg my-2 overflow-x-auto text-gray-300 font-mono text-xs" {...props} />
+                                        ),
+
+                                    // Links
+                                    a: ({ node, ...props }) => <a className="text-primary-400 hover:text-primary-300 underline" {...props} />,
+
+                                    // Blockquotes
+                                    blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary-600 pl-4 italic my-3 text-gray-300" {...props} />,
+
+                                    // Horizontal rule
+                                    hr: ({ node, ...props }) => <hr className="my-4 border-dark-700" {...props} />,
+                                }}
+                            >
+                                {message}
+                            </ReactMarkdown>
+                        )}
                     </div>
 
                     {/* Sources */}
