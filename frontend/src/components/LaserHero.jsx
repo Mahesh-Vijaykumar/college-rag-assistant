@@ -20,12 +20,18 @@ const LaserHero = () => {
     const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
     const [visualsEnabled, setVisualsEnabled] = useState(true);
     const heroRef = useRef(null);
+    const aboutRef = useRef(null);
 
     // Configuration
     const BEAM_COUNT = 8; // Reduce to 2-3 for mobile
     const BLUR_STRENGTH = 6;
     const PULSE_SPEED = 1;
     const DRIFT_AMPLITUDE = 100;
+
+    // Smooth scroll to About section
+    const scrollToAbout = () => {
+        aboutRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     // Check for reduced motion preference
     useEffect(() => {
@@ -71,193 +77,282 @@ const LaserHero = () => {
     }));
 
     return (
-        <div
-            ref={heroRef}
-            className="relative min-h-screen bg-black flex flex-col overflow-hidden"
-        >
-            {/* Accessibility Toggle */}
-            <button
-                onClick={() => setVisualsEnabled(!visualsEnabled)}
-                className="absolute top-4 right-4 z-50 px-3 py-1.5 text-xs bg-gray-800/50 text-white rounded-md hover:bg-gray-700/50 transition-colors"
-                aria-label={visualsEnabled ? "Disable visual effects" : "Enable visual effects"}
+        <div className="relative bg-black overflow-y-auto h-screen snap-y snap-mandatory">
+            {/* Hero Section */}
+            <div
+                ref={heroRef}
+                className="relative min-h-screen bg-black flex flex-col overflow-hidden snap-start"
             >
-                {visualsEnabled ? "Disable Effects" : "Enable Effects"}
-            </button>
+                {/* Accessibility Toggle */}
+                <button
+                    onClick={() => setVisualsEnabled(!visualsEnabled)}
+                    className="absolute top-4 right-4 z-50 px-3 py-1.5 text-xs bg-gray-800/50 text-white rounded-md hover:bg-gray-700/50 transition-colors"
+                    aria-label={visualsEnabled ? "Disable visual effects" : "Enable visual effects"}
+                >
+                    {visualsEnabled ? "Disable Effects" : "Enable Effects"}
+                </button>
 
-            {/* Laser Beam Effects Layer */}
-            {visualsEnabled && (
-                <div className="absolute inset-0 pointer-events-none">
-                    {/* Radial Glow Background */}
-                    <div className="absolute inset-0">
+                {/* Laser Beam Effects Layer */}
+                {visualsEnabled && (
+                    <div className="absolute inset-0 pointer-events-none">
+                        {/* Radial Glow Background */}
+                        <div className="absolute inset-0">
+                            <div
+                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+                                style={{
+                                    background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)',
+                                    filter: 'blur(60px)',
+                                }}
+                            />
+                            <div
+                                className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
+                                style={{
+                                    background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+                                    filter: 'blur(80px)',
+                                }}
+                            />
+                        </div>
+
+                        {/* SVG Laser Beams */}
+                        <svg
+                            className="absolute inset-0 w-full h-full"
+                            style={{ mixBlendMode: 'screen' }}
+                        >
+                            <defs>
+                                {/* Gradient for laser beams */}
+                                <linearGradient id="laserGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.8" />
+                                    <stop offset="50%" stopColor="#06B6D4" stopOpacity="0.6" />
+                                    <stop offset="100%" stopColor="#EC4899" stopOpacity="0.8" />
+                                </linearGradient>
+
+                                {/* Blur filter */}
+                                <filter id="laserBlur">
+                                    <feGaussianBlur in="SourceGraphic" stdDeviation={BLUR_STRENGTH} />
+                                </filter>
+                            </defs>
+
+                            {/* Render laser beams */}
+                            {beams.map((beam) => {
+                                const parallaxX = mousePosition.x * beam.depth * 12;
+                                const parallaxY = mousePosition.y * beam.depth * 12;
+
+                                return (
+                                    <line
+                                        key={beam.id}
+                                        x1={beam.x1}
+                                        y1={beam.y1}
+                                        x2={beam.x2}
+                                        y2={beam.y2}
+                                        stroke="url(#laserGradient)"
+                                        strokeWidth={beam.strokeWidth}
+                                        strokeLinecap="round"
+                                        filter="url(#laserBlur)"
+                                        style={{
+                                            transform: `translate(${parallaxX}px, ${parallaxY}px)`,
+                                            animation: prefersReducedMotion
+                                                ? 'none'
+                                                : `laserDrift-${beam.id} ${beam.driftDuration}s ease-in-out infinite, laserPulse ${beam.pulseDuration}s ease-in-out infinite ${beam.pulseDelay}s`,
+                                        }}
+                                    />
+                                );
+                            })}
+                        </svg>
+
+                        {/* Noise Overlay */}
                         <div
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+                            className="absolute inset-0 opacity-[0.03] pointer-events-none"
                             style={{
-                                background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)',
-                                filter: 'blur(60px)',
-                            }}
-                        />
-                        <div
-                            className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-                            style={{
-                                background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
-                                filter: 'blur(80px)',
+                                backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
+                                animation: prefersReducedMotion ? 'none' : 'noiseShift 8s steps(10) infinite',
                             }}
                         />
                     </div>
+                )}
 
-                    {/* SVG Laser Beams */}
-                    <svg
-                        className="absolute inset-0 w-full h-full"
-                        style={{ mixBlendMode: 'screen' }}
+                {/* Header */}
+                <header className="relative z-10 flex justify-between items-center px-8 py-6">
+                    <div className="flex items-center space-x-6">
+                        <div className="flex items-center space-x-2">
+                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <span className="text-xl font-bold tracking-tight text-white">CampusAI</span>
+                        </div>
+                        <button
+                            onClick={scrollToAbout}
+                            className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+                        >
+                            About
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => navigate('/admin/login')}
+                        className="group relative inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-md hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105"
                     >
-                        <defs>
-                            {/* Gradient for laser beams */}
-                            <linearGradient id="laserGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.8" />
-                                <stop offset="50%" stopColor="#06B6D4" stopOpacity="0.6" />
-                                <stop offset="100%" stopColor="#EC4899" stopOpacity="0.8" />
-                            </linearGradient>
+                        <span className="relative z-10">Admin Login</span>
+                        <svg
+                            className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 blur-sm opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                    </button>
+                </header>
 
-                            {/* Blur filter */}
-                            <filter id="laserBlur">
-                                <feGaussianBlur in="SourceGraphic" stdDeviation={BLUR_STRENGTH} />
-                            </filter>
-                        </defs>
+                {/* Main Content */}
+                <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4">
+                    <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight text-white drop-shadow-2xl">
+                        CampusAI
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400">
+                            Gemini X RAG
+                        </span>
+                    </h1>
+                    <p className="text-gray-300 text-lg md:text-2xl max-w-3xl mb-12 leading-relaxed drop-shadow-lg">
+                        Your trusted source for quick, accurate information from all documents.
+                    </p>
+                    <button
+                        onClick={() => navigate('/chat')}
+                        className="group relative inline-flex items-center gap-3 px-10 py-4 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105"
+                    >
+                        <span className="relative z-10">TRY NOW</span>
+                        <svg
+                            className="relative z-10 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                    </button>
+                </main>
 
-                        {/* Render laser beams */}
-                        {beams.map((beam) => {
-                            const parallaxX = mousePosition.x * beam.depth * 12;
-                            const parallaxY = mousePosition.y * beam.depth * 12;
+                {/* Inline Styles for Animations */}
+                <style jsx>{`
+                    ${beams.map((beam) => `
+                        @keyframes laserDrift-${beam.id} {
+                            0%, 100% { transform: translateX(0); }
+                            50% { transform: translateX(${DRIFT_AMPLITUDE * (Math.random() - 0.5) * 2}px); }
+                        }
+                    `).join('\n')}
 
-                            return (
-                                <line
-                                    key={beam.id}
-                                    x1={beam.x1}
-                                    y1={beam.y1}
-                                    x2={beam.x2}
-                                    y2={beam.y2}
-                                    stroke="url(#laserGradient)"
-                                    strokeWidth={beam.strokeWidth}
-                                    strokeLinecap="round"
-                                    filter="url(#laserBlur)"
-                                    style={{
-                                        transform: `translate(${parallaxX}px, ${parallaxY}px)`,
-                                        animation: prefersReducedMotion
-                                            ? 'none'
-                                            : `laserDrift-${beam.id} ${beam.driftDuration}s ease-in-out infinite, laserPulse ${beam.pulseDuration}s ease-in-out infinite ${beam.pulseDelay}s`,
-                                    }}
-                                />
-                            );
-                        })}
-                    </svg>
+                    @keyframes laserPulse {
+                        0%, 100% { opacity: 0.3; }
+                        50% { opacity: 0.8; }
+                    }
 
-                    {/* Noise Overlay */}
+                    @keyframes noiseShift {
+                        0%, 100% { transform: translate(0, 0); }
+                        10% { transform: translate(-5%, -5%); }
+                        20% { transform: translate(-10%, 5%); }
+                        30% { transform: translate(5%, -10%); }
+                        40% { transform: translate(-5%, 15%); }
+                        50% { transform: translate(-10%, 5%); }
+                        60% { transform: translate(15%, 0); }
+                        70% { transform: translate(0, 10%); }
+                        80% { transform: translate(-15%, 0); }
+                        90% { transform: translate(10%, 5%); }
+                    }
+
+                    @media (prefers-reduced-motion: reduce) {
+                        * {
+                            animation-duration: 0.01ms !important;
+                            animation-iteration-count: 1 !important;
+                            transition-duration: 0.01ms !important;
+                        }
+                    }
+
+                    /* Mobile optimization */
+                    @media (max-width: 768px) {
+                        line:nth-child(n+4) {
+                            display: none;
+                        }
+                    }
+                `}</style>
+            </div>
+
+            {/* About Section */}
+            <div
+                ref={aboutRef}
+                className="relative min-h-screen bg-black flex flex-col items-center justify-center px-4 py-20 snap-start"
+            >
+                {/* Colorful Gradient Backgrounds */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                     <div
-                        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
                         style={{
-                            backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
-                            animation: prefersReducedMotion ? 'none' : 'noiseShift 8s steps(10) infinite',
+                            background: 'radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
+                            filter: 'blur(60px)',
+                        }}
+                    />
+                    <div
+                        className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full"
+                        style={{
+                            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%)',
+                            filter: 'blur(80px)',
+                        }}
+                    />
+                    <div
+                        className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] rounded-full"
+                        style={{
+                            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%)',
+                            filter: 'blur(70px)',
                         }}
                     />
                 </div>
-            )}
 
-            {/* Header */}
-            <header className="relative z-10 flex justify-between items-center px-8 py-6">
-                <div className="flex items-center space-x-2">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <span className="text-xl font-bold tracking-tight text-white">CampusAI</span>
+                <div className="relative z-10 max-w-4xl mx-auto">
+                    <h2 className="text-5xl md:text-6xl font-bold mb-12 text-center">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400">
+                            About
+                        </span>
+                    </h2>
+
+                    <p className="text-xl md:text-2xl text-center mb-12 text-gray-200">
+                        Revolutionizing campus information access with AI-powered intelligence
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div className="bg-dark-900/50 backdrop-blur-sm border border-dark-700 rounded-2xl p-6">
+                            <h3 className="text-2xl font-bold mb-4 text-white">🎯 Our Mission</h3>
+                            <p className="text-gray-300">
+                                CampusAI is designed to transform how students and faculty access college information. By combining Google's Gemini AI with advanced Retrieval-Augmented Generation (RAG), we provide instant, accurate answers to all your campus-related questions.
+                            </p>
+                        </div>
+
+                        <div className="bg-dark-900/50 backdrop-blur-sm border border-dark-700 rounded-2xl p-6">
+                            <h3 className="text-2xl font-bold mb-4 text-white">⚡ How It Works</h3>
+                            <p className="text-gray-300">
+                                Our system intelligently searches through uploaded college documents—syllabi, policies, research papers, and lecture notes—to deliver precise, context-aware responses. No more endless searching through PDFs or websites!
+                            </p>
+                        </div>
+
+                        <div className="bg-dark-900/50 backdrop-blur-sm border border-dark-700 rounded-2xl p-6">
+                            <h3 className="text-2xl font-bold mb-4 text-white">🔮 Seamless User Experience</h3>
+                            <p className="text-gray-300">
+                                CampusAI is designed for every student and faculty member. With a clean interface, intelligent chat flow, and context-aware enhancements, finding answers feels natural—just ask, and CampusAI handles the rest.
+                            </p>
+                        </div>
+
+                        <div className="bg-dark-900/50 backdrop-blur-sm border border-dark-700 rounded-2xl p-6">
+                            <h3 className="text-2xl font-bold mb-4 text-white">🚀 Key Features</h3>
+                            <ul className="text-gray-300 space-y-2">
+                                <li>• Instant answers with source citations</li>
+                                <li>• Support for multiple document types</li>
+                                <li>• Advanced semantic search</li>
+                                <li>• Admin portal for easy management</li>
+                            </ul>
+                        </div>
+                    </div>
+
+
                 </div>
-                <button
-                    onClick={() => navigate('/admin/login')}
-                    className="group relative inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-md hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105"
-                >
-                    <span className="relative z-10">Admin Login</span>
-                    <svg
-                        className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 blur-sm opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
-                </button>
-            </header>
-
-            {/* Main Content */}
-            <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4">
-                <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight text-white drop-shadow-2xl">
-                    CampusAI
-                    <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400">
-                        Gemini X RAG
-                    </span>
-                </h1>
-                <p className="text-gray-300 text-lg md:text-2xl max-w-3xl mb-12 leading-relaxed drop-shadow-lg">
-                    Your trusted source for quick, accurate information from all documents.
-                </p>
-                <button
-                    onClick={() => navigate('/chat')}
-                    className="group relative inline-flex items-center gap-3 px-10 py-4 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-full shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105"
-                >
-                    <span className="relative z-10">TRY NOW</span>
-                    <svg
-                        className="relative z-10 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
-                </button>
-            </main>
-
-            {/* Inline Styles for Animations */}
-            <style jsx>{`
-                ${beams.map((beam) => `
-                    @keyframes laserDrift-${beam.id} {
-                        0%, 100% { transform: translateX(0); }
-                        50% { transform: translateX(${DRIFT_AMPLITUDE * (Math.random() - 0.5) * 2}px); }
-                    }
-                `).join('\n')}
-
-                @keyframes laserPulse {
-                    0%, 100% { opacity: 0.3; }
-                    50% { opacity: 0.8; }
-                }
-
-                @keyframes noiseShift {
-                    0%, 100% { transform: translate(0, 0); }
-                    10% { transform: translate(-5%, -5%); }
-                    20% { transform: translate(-10%, 5%); }
-                    30% { transform: translate(5%, -10%); }
-                    40% { transform: translate(-5%, 15%); }
-                    50% { transform: translate(-10%, 5%); }
-                    60% { transform: translate(15%, 0); }
-                    70% { transform: translate(0, 10%); }
-                    80% { transform: translate(-15%, 0); }
-                    90% { transform: translate(10%, 5%); }
-                }
-
-                @media (prefers-reduced-motion: reduce) {
-                    * {
-                        animation-duration: 0.01ms !important;
-                        animation-iteration-count: 1 !important;
-                        transition-duration: 0.01ms !important;
-                    }
-                }
-
-                /* Mobile optimization */
-                @media (max-width: 768px) {
-                    line:nth-child(n+4) {
-                        display: none;
-                    }
-                }
-            `}</style>
+            </div>
         </div>
     );
 };
