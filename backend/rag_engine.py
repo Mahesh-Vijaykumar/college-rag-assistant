@@ -178,13 +178,29 @@ async def query_rag(query_text: str, n_results: int = 3) -> Dict[str, Any]:
     # Stage 2: Rerank candidates to get top 3
     reranked_docs, scores = reranker.rerank(query_text, documents, top_k=n_results)
     
-    # Apply similarity threshold - if top result is too weak, return fallback
+    # Apply similarity threshold - if top result is too weak, switch to General Chat Mode
     # Note: CrossEncoder scores can be negative, typical range is -15 to +15
     # A score below -5 indicates very poor relevance
     SIMILARITY_THRESHOLD = -5.0
+    
     if not scores or scores[0] < SIMILARITY_THRESHOLD:
+        # General Chat Mode
+        print(f"Low relevance score ({scores[0] if scores else 'None'}). Switching to General Chat Mode.")
+        
+        general_prompt = f"""You are a helpful AI assistant for a college.
+The user asked: "{query_text}"
+
+You do not have access to specific documents for this query (retrieval relevance was low).
+- If this is a greeting or general small talk (e.g., "hi", "how are you"), reply naturally and politely.
+- If this is a general knowledge question (e.g., "what is the time", "who is Einstein"), answer it.
+- If the user is asking for specific college details (fees, schedules, etc.) that you don't know, politely admit you don't have that information in your current documents.
+
+Answer helpfully but do not hallucinate specific college facts.
+"""
+        answer = await llm_client.generate_answer_llm(general_prompt)
+        
         return {
-            "answer": "I don't have this information in the uploaded college documents.",
+            "answer": answer,
             "sources": []
         }
     
