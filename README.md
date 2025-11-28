@@ -119,19 +119,114 @@ npm run dev
 
 ## 📖 Usage Guide
 
-### Admin Panel (Document Management)
-1.  Go to `http://localhost:5173/admin/login`.
-2.  Login with default credentials:
-    -   **Username**: `admin`
-    -   **Password**: `admin`
-    *(Change these in `.env` for production)*
-3.  **Upload**: Drag & drop PDF documents (e.g., "College Handbook.pdf").
-4.  **Manage**: View uploaded files or delete outdated ones.
+### Getting Started
 
-### Public Chat
-1.  Go to `http://localhost:5173/chat`.
-2.  Ask questions like *"What is the fee structure?"* or *"When are the exams?"*.
-3.  The bot will answer using **only** the information found in your uploaded documents.
+The application has three main interfaces:
+1. **Landing Page** - Introduction and navigation hub
+2. **Admin Portal** - Document management for administrators
+3. **Chat Interface** - Public chat for asking questions
+
+### 🏠 Landing Page
+
+1. Navigate to `http://localhost:5173/`
+2. You'll see the **Genesis AI RAG** landing page with two options:
+   - **Try Now** - Go directly to the chat interface
+   - **Admin Login** - Access the admin portal to manage documents
+
+### 🔐 Admin Portal (Document Management)
+
+**Important:** You must upload documents through the admin portal before the chat can provide context-relevant answers. Without uploaded documents, the system has no knowledge base to draw from.
+
+#### Step 1: Login
+1. Click **Admin Login** from the landing page, or navigate to `http://localhost:5173/admin/login`
+2. Enter the default credentials:
+   - **Username**: `admin`
+   - **Password**: `admin`
+   
+   > ⚠️ **Security Note**: Change these credentials in `backend/.env` for production use
+
+#### Step 2: Upload Documents
+1. After logging in, you'll see the **Admin Dashboard** with a sidebar
+2. Click **Upload Documents** in the sidebar (or it may be the default view)
+3. **Upload your PDF documents** using one of these methods:
+   - **Drag & Drop**: Drag PDF files into the upload area
+   - **Click to Browse**: Click the upload area to select files from your computer
+4. **Select a Category** for each document (helps with organization):
+   - Syllabus
+   - Research Paper
+   - Policy
+   - Lecture Notes
+   - General
+5. Click **Upload** to process the document
+6. Wait for the upload to complete (you'll see a success notification)
+
+> 💡 **Tip**: Upload all relevant documents (handbooks, policies, FAQs, syllabi, etc.) to build a comprehensive knowledge base for accurate answers.
+
+#### Step 3: Manage Documents
+1. Click **Manage Documents** in the sidebar to view all uploaded documents
+2. Features available:
+   - **Search**: Filter documents by filename
+   - **Category Filter**: View documents by category
+   - **Delete**: Remove outdated or incorrect documents
+3. Each document shows:
+   - Filename
+   - Category
+   - Upload date/time
+   - Delete action
+
+### 💬 Public Chat Interface
+
+**Prerequisites:** Ensure you have uploaded relevant documents through the Admin Portal first. The chat can only answer questions based on the uploaded documents.
+
+#### Using the Chat
+1. Navigate to `http://localhost:5173/chat` or click **Try Now** from the landing page
+2. You'll see:
+   - **FAQ Sidebar** (left): Click any question to auto-fill the input
+   - **Chat Area** (center): Conversation history
+   - **Input Box** (bottom): Type your questions here
+
+#### Asking Questions
+1. Type your question in the input box (e.g., "What is the admission process?")
+2. Press **Enter** or click the **Send** button
+3. The system will:
+   - Search through uploaded documents for relevant information
+   - Use RAG (Retrieval-Augmented Generation) to generate an accurate answer
+   - Display the response with:
+     - **RAG Tag**: Indicates the answer is based on retrieved documents
+     - **Source Citations**: Shows which documents were used (if available)
+
+#### Understanding Responses
+- **RAG Responses**: Answers based on your uploaded documents (most accurate)
+- **LLM Responses**: General knowledge responses (when no relevant documents are found)
+- **Source Citations**: Click to see which documents were referenced
+
+#### Example Questions
+- "What are the admission requirements?"
+- "When is the registration deadline?"
+- "What is the fee structure for undergraduate programs?"
+- "How do I apply for a scholarship?"
+- "What are the campus facilities?"
+
+> 📌 **Note**: The quality and accuracy of answers depend on the documents you've uploaded. Upload comprehensive, well-organized documents for best results.
+
+### 🔄 Complete Workflow Example
+
+1. **Admin uploads documents**:
+   - Login to admin portal
+   - Upload "Student Handbook.pdf" (Category: Policy)
+   - Upload "Course Syllabus 2024.pdf" (Category: Syllabus)
+   - Upload "Admission Guide.pdf" (Category: General)
+
+2. **Student asks questions**:
+   - Go to chat interface
+   - Ask: "What documents do I need for admission?"
+   - System retrieves relevant sections from "Admission Guide.pdf"
+   - Provides accurate answer with source citation
+
+3. **Admin maintains knowledge base**:
+   - Regularly update documents when policies change
+   - Delete outdated documents
+   - Add new documents as they become available
 
 ---
 

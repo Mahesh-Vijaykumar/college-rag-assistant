@@ -53,4 +53,7 @@ export const chatQuery = async (query) => {
     return response.data;
 };
 
+// Alias for compatibility
+export const queryChat = chatQuery;
+
 export default api;
