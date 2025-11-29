@@ -12,6 +12,8 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isLockedOut, setIsLockedOut] = useState(false);
+    const [retryAfter, setRetryAfter] = useState(0);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -19,16 +21,32 @@ const AdminLogin = () => {
         setError('');
         setSuccess('');
         setLoading(true);
+        setIsLockedOut(false);
 
         try {
             const data = await login(username, password);
-            localStorage.setItem('token', data.access_token);
             setSuccess('Login successful. Redirecting...');
             setTimeout(() => {
                 navigate('/admin/dashboard');
             }, 1500);
         } catch (err) {
-            setError('Invalid username or password. Please try again.');
+            // Handle rate limiting errors
+            if (err.response?.status === 429) {
+                const errorData = err.response.data.detail;
+
+                if (typeof errorData === 'object' && errorData.retry_after) {
+                    setIsLockedOut(true);
+                    setRetryAfter(errorData.retry_after);
+                    setError(errorData.message || 'Too many failed attempts. Please try again later.');
+                } else {
+                    setError('Too many login attempts. Please try again later.');
+                }
+            } else if (err.response?.status === 401) {
+                // Generic error message to avoid username enumeration
+                setError('Invalid credentials. Please check your username and password.');
+            } else {
+                setError('An error occurred. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -76,6 +94,14 @@ const AdminLogin = () => {
                             type="error"
                             message={error}
                             onClose={() => setError('')}
+                            duration={5000}
+                        />
+                    )}
+                    {isLockedOut && retryAfter > 0 && (
+                        <Notification
+                            type="warning"
+                            message={`Account temporarily locked. Please wait ${Math.ceil(retryAfter / 60)} minutes before trying again.`}
+                            onClose={() => setIsLockedOut(false)}
                         />
                     )}
                 </div>
@@ -97,6 +123,7 @@ const AdminLogin = () => {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
+                            disabled={isLockedOut}
                         />
                         <Input
                             id="password"
@@ -106,13 +133,14 @@ const AdminLogin = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            disabled={isLockedOut}
                         />
                         <Button
                             type="submit"
                             className="w-full"
-                            disabled={loading}
+                            disabled={loading || isLockedOut}
                         >
-                            {loading ? 'Logging in...' : 'Login'}
+                            {loading ? 'Logging in...' : isLockedOut ? 'Account Locked' : 'Login'}
                         </Button>
                     </form>
                 </Card>
@@ -122,4 +150,5 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
 

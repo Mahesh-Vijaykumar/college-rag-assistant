@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logout } from '../api';
 import ManageDocuments from '../components/ManageDocuments';
 import UploadDocuments from '../components/UploadDocuments';
 
 const AdminDashboard = () => {
     const [activeView, setActiveView] = useState('manage'); // 'manage' or 'upload'
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/admin/login');
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
+    };
+
+    const handleNavClick = (view) => {
+        setActiveView(view);
+        setSidebarOpen(false); // Close sidebar on mobile after selection
     };
 
     return (
@@ -39,10 +46,50 @@ const AdminDashboard = () => {
                 />
             </div>
 
+            {/* Mobile Header with Hamburger */}
+            <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-dark-900/90 backdrop-blur-sm border-b border-dark-700 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                        AP
+                    </div>
+                    <div>
+                        <h1 className="font-bold text-white text-sm">Admin Panel</h1>
+                        <p className="text-xs text-gray-400">CampusAI</p>
+                    </div>
+                </div>
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    aria-label="Toggle menu"
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {sidebarOpen ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        ) : (
+                            <path strokeLinecap="round" strokeJoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                        )}
+                    </svg>
+                </button>
+            </div>
+
+            {/* Sidebar Overlay (Mobile) */}
+            {sidebarOpen && (
+                <div
+                    className="md:hidden fixed inset-0 bg-black/50 z-40"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="relative z-10 w-64 bg-dark-900/50 backdrop-blur-sm border-r border-dark-700 flex flex-col">
-                {/* Header */}
-                <div className="p-6 flex items-center space-x-3">
+            <aside className={`
+                fixed md:relative z-40
+                w-64 bg-dark-900/50 backdrop-blur-sm border-r border-dark-700 flex flex-col
+                transition-transform duration-300 ease-in-out
+                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                h-full
+            `}>
+                {/* Header (Desktop only) */}
+                <div className="hidden md:flex p-6 items-center space-x-3">
                     <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
                         AP
                     </div>
@@ -53,9 +100,9 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 px-4 py-4 space-y-2">
+                <nav className="flex-1 px-4 py-4 space-y-2 mt-16 md:mt-0">
                     <button
-                        onClick={() => setActiveView('manage')}
+                        onClick={() => handleNavClick('manage')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeView === 'manage'
                             ? 'bg-primary-600 text-white'
                             : 'text-gray-400 hover:bg-dark-800 hover:text-white'
@@ -68,7 +115,7 @@ const AdminDashboard = () => {
                     </button>
 
                     <button
-                        onClick={() => setActiveView('upload')}
+                        onClick={() => handleNavClick('upload')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeView === 'upload'
                             ? 'bg-primary-600 text-white'
                             : 'text-gray-400 hover:bg-dark-800 hover:text-white'
@@ -96,9 +143,9 @@ const AdminDashboard = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="relative z-10 flex-1 overflow-y-auto bg-transparent p-8">
+            <main className="relative z-10 flex-1 overflow-y-auto bg-transparent p-4 md:p-8 mt-16 md:mt-0">
                 {activeView === 'manage' ? (
-                    <ManageDocuments onNavigateToUpload={() => setActiveView('upload')} />
+                    <ManageDocuments onNavigateToUpload={() => handleNavClick('upload')} />
                 ) : (
                     <UploadDocuments />
                 )}
@@ -108,4 +155,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

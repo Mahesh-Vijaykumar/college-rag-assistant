@@ -1,29 +1,139 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+// Use environment variable for production, fallback to localhost for development
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 
 const api = axios.create({
     baseURL: API_URL,
 });
 
+// Token management utilities
+export const tokenManager = {
+    getAccessToken: () => localStorage.getItem('token'),
+    getRefreshToken: () => localStorage.getItem('refresh_token'),
+    setTokens: (accessToken, refreshToken) => {
+        localStorage.setItem('token', accessToken);
+        if (refreshToken) {
+            localStorage.setItem('refresh_token', refreshToken);
+        }
+    },
+    clearTokens: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+    }
+};
+
+// Flag to prevent multiple simultaneous refresh attempts
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 // Add a request interceptor to include the auth token
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = tokenManager.getAccessToken();
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });
 
+// Add a response interceptor to handle token refresh
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        // If error is 401 and we haven't tried to refresh yet
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                // If already refreshing, queue this request
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then(token => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return api(originalRequest);
+                    })
+                    .catch(err => Promise.reject(err));
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            const refreshToken = tokenManager.getRefreshToken();
+
+            if (!refreshToken) {
+                // No refresh token, redirect to login
+                tokenManager.clearTokens();
+                window.location.href = '/admin/login';
+                return Promise.reject(error);
+            }
+
+            try {
+                // Attempt to refresh the token
+                const response = await axios.post(`${API_URL}/admin/refresh`, {
+                    refresh_token: refreshToken
+                });
+
+                const { access_token } = response.data;
+                tokenManager.setTokens(access_token, refreshToken);
+
+                // Update the failed request with new token
+                originalRequest.headers.Authorization = `Bearer ${access_token}`;
+
+                processQueue(null, access_token);
+                isRefreshing = false;
+
+                return api(originalRequest);
+            } catch (refreshError) {
+                processQueue(refreshError, null);
+                isRefreshing = false;
+
+                // Refresh failed, clear tokens and redirect to login
+                tokenManager.clearTokens();
+                window.location.href = '/admin/login';
+
+                return Promise.reject(refreshError);
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 export const login = async (username, password) => {
-    const formData = new URLSearchParams();
-    formData.append('username', username);
-    formData.append('password', password);
-    // FastAPI OAuth2PasswordRequestForm expects form data, but our endpoint uses JSON body in the Pydantic model?
-    // Wait, in backend/routers/admin.py: async def login(user: UserLogin):
-    // It expects JSON body.
     const response = await api.post('/admin/login', { username, password });
+    const { access_token, refresh_token } = response.data;
+
+    // Store both tokens
+    tokenManager.setTokens(access_token, refresh_token);
+
     return response.data;
+};
+
+export const logout = async () => {
+    const refreshToken = tokenManager.getRefreshToken();
+
+    if (refreshToken) {
+        try {
+            await api.post('/admin/logout', { refresh_token: refreshToken });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+
+    tokenManager.clearTokens();
 };
 
 export const uploadDocument = async (file, category) => {
@@ -57,3 +167,4 @@ export const chatQuery = async (query) => {
 export const queryChat = chatQuery;
 
 export default api;
+

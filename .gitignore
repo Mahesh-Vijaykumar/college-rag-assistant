@@ -12,6 +12,7 @@ venv/
 featvenv/
 .env
 backend/.env
+.env.production
 
 
 # ===========================

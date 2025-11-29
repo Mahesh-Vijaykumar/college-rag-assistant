@@ -5,10 +5,12 @@ sentence-transformers
 pdfplumber
 python-multipart
 python-jose[cryptography]
-passlib[bcrypt]
+passlib[argon2]
 requests
 python-dotenv
 numpy
 nltk
 pytest
 httpx
+slowapi
+google-generativeai

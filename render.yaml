@@ -1,0 +1,41 @@
+version: "1"
+
+services:
+  - type: web
+    name: college-rag-bot-backend
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 60
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: UPLOAD_DIR
+        value: /opt/render/project/src/uploads
+      - key: VECTOR_DB_DIR
+        value: /opt/render/project/src/vector_db
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LLM_API_URL
+        value: http://localhost:11434/api/generate
+      - key: LLM_MODEL_NAME
+        value: phi3.5
+      - key: ALLOWED_ORIGINS
+        sync: false
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
