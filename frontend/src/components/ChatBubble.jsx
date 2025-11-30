@@ -54,9 +54,9 @@ const ChatBubble = ({ message, isUser, sources }) => {
                                     p: ({ node, ...props }) => <p className="mb-3 leading-relaxed text-gray-200" {...props} />,
 
                                     // Lists
-                                    ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1 ml-2" {...props} />,
-                                    ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1 ml-2" {...props} />,
-                                    li: ({ node, ...props }) => <li className="text-gray-200 leading-relaxed" {...props} />,
+                                    ul: ({ node, ...props }) => <ul className="list-disc list-outside mb-3 space-y-2 pl-5" {...props} />,
+                                    ol: ({ node, ...props }) => <ol className="list-decimal list-outside mb-3 space-y-2 pl-5" {...props} />,
+                                    li: ({ node, ...props }) => <li className="text-gray-200 leading-relaxed ml-1" {...props} />,
 
                                     // Bold and emphasis
                                     strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,

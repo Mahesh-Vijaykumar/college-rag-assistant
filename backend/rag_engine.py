@@ -197,10 +197,11 @@ You do not have access to specific documents for this query (retrieval relevance
 
 Format your response in clean Markdown:
 - Use **headings** (## or ###) to organize information
-- Use **bullet points** for lists
-- Use **numbered lists** for sequential steps
+- Use **unordered lists** with proper markdown syntax (- or *) for lists of items
+- Use **numbered lists** (1. 2. 3.) for sequential steps or processes
 - Use **bold** for emphasis on key points
 - Keep paragraphs short and concise
+- IMPORTANT: Always use proper markdown list syntax, NOT bullet point characters (•)
 
 Answer helpfully but do not hallucinate specific college facts.
 """
@@ -230,11 +231,12 @@ Use ONLY the information in the <context> section to answer.
 
 Formatting Guidelines:
 - Structure your response with **clear headings** (use ## or ###)
-- Use **bullet points** (•) for lists of items
-- Use **numbered lists** (1., 2., 3.) for sequential steps or processes
+- Use **unordered lists** with markdown syntax (- or *) for lists of items
+- Use **numbered lists** (1. 2. 3.) for sequential steps or processes
 - Use **bold text** to highlight key information, dates, numbers, or important terms
 - Break long paragraphs into shorter, digestible sections
 - Add a brief summary at the top for complex answers
+- CRITICAL: Always use proper markdown list syntax (- or *), NEVER use bullet point characters (•)
 
 Content Rules:
 - Provide direct, concise answers

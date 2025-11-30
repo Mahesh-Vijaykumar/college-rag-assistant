@@ -13,6 +13,7 @@ featvenv/
 .env
 backend/.env
 .env.production
+backend/.bvenv/
 
 
 # ===========================
