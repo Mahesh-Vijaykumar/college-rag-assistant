@@ -39,6 +39,11 @@ class Settings:
     LLM_PROVIDER = os.getenv("LLM_PROVIDER", "local")
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
     
+    # Gemini API Configuration
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    GEMINI_RATE_LIMIT_DELAY = float(os.getenv("GEMINI_RATE_LIMIT_DELAY", "1.0"))  # Seconds between requests
+    GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "5"))
+    
     # CORS Settings - restrict to specific origins in production
     ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000").split(",")
 
