@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: college-rag-bot
+    env: docker
+    plan: free
+    region: ohio # Adjust depending on your preference
+    envVars:
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false # Set this in Render Dashboard
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false # Set this in Render Dashboard
+      - key: UPLOAD_DIR
+        value: ../uploads
+      - key: VECTOR_DB_DIR
+        value: ../vector_db
